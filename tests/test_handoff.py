@@ -41,12 +41,19 @@ class HandoffTest(unittest.TestCase):
         r=report(self.db)
         self.assertEqual([w['state'] for w in r['weigh']],['superseded','disputed'])
         self.assertEqual(r['performance'][-1]['credited_kg'],0)
+        self.assertEqual(r['batch_investigation'][-1]['state'],'open')
     def test_repeat_weigh_without_witness_is_duplicate(self):
         self.complete()
         self.events('weigh-import',[{'id':'W3','kind':'weigh','station_id':'ST1','route_id':'R1','seal':'seal-a','at':'2026-04-01T11:30:00','gross':195,'tare':95,'operator':'scale-a'}])
         r=report(self.db)
         self.assertEqual(r['weigh'][-1]['state'],'duplicate')
         self.assertEqual(r['performance'][-1]['credited_kg'],95)
+    def test_reweigh_resolution_closes_source_investigation(self):
+        self.complete();self.fixture('weigh-import','weigh-bad.json')
+        self.events('weigh-import',[{'id':'W4','kind':'weigh','station_id':'ST1','route_id':'R1','seal':'seal-a','at':'2026-04-01T11:20:00','gross':192,'tare':95,'operator':'scale-a','reweigh_of':'W2','witness':'scale-supervisor'}])
+        r=report(self.db)
+        self.assertEqual(r['batch_investigation'][-1]['state'],'resolved')
+        self.assertEqual(r['performance'][-1]['credited_kg'],97)
     def test_dual_witness_required_on_load(self):
         self.routed();self.fixture('route-import','route-bad.json')
         self.assertEqual(report(self.db)['load'][-1]['state'],'blocked')

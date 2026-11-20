@@ -59,3 +59,13 @@ def recompute(db,batch_id,event_id=None):
         from .weighing import reconcile_performance
         reconcile_performance(db,batch_id)
     return state
+
+def record_terminal_difference(db,batch_id,weigh_id,state):
+    prior=one(db,'SELECT * FROM batch_investigation WHERE batch_id=? ORDER BY id DESC LIMIT 1',(batch_id,))
+    new_state='open' if state=='disputed' else 'resolved'
+    if prior and prior['state']==new_state:return new_state
+    reason='terminal net differs from signed loading mass' if new_state=='open' else 'independent reweigh resolved terminal difference'
+    db.execute('INSERT INTO batch_investigation(batch_id,weigh_id,state,reason) VALUES(?,?,?,?)',
+               (batch_id,weigh_id,new_state,reason))
+    log(db,'sorting',batch_id,'investigation_'+new_state,reason,weigh_id)
+    return new_state

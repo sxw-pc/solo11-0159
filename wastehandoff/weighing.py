@@ -44,6 +44,8 @@ def weigh(db,e):
             db.execute('INSERT INTO handoff(weigh_id,load_id,net_kg,delta_kg,state,reason) VALUES(?,?,?,?,?,?)',
                        (e['id'],load['id'],net*load['kg']/declared,delta*load['kg']/declared,state,reason))
             reconcile_performance(db,load['batch_id'])
+            from .sorting import record_terminal_difference
+            record_terminal_difference(db,load['batch_id'],e['id'],state)
     elif superseded:
         for load in many(db,'SELECT DISTINCT l.batch_id FROM load l JOIN handoff h ON h.load_id=l.id WHERE h.weigh_id=?',(superseded['id'],)):
             reconcile_performance(db,load['batch_id'])
