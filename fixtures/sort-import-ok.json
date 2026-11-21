@@ -1,0 +1,5 @@
+{"events":[
+{"id":"PT1","kind":"point","zone":"district-a","category":"recyclable","inspector_org":"classify-team"},
+{"id":"B1","kind":"batch","point_id":"PT1","category":"recyclable","bag_count":10,"declared_kg":100,"at":"2026-04-01T08:00:00"},
+{"id":"S1","kind":"sample","batch_id":"B1","inspector":"classify-team","at":"2026-04-01T08:10:00","contamination":4,"bag_refs":["bag-1","bag-2"]}
+]}
