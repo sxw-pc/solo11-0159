@@ -2,8 +2,9 @@ import hashlib
 import json
 from .store import connect,many
 from .source import ingest
+from . import scoped_source
 
-TABLES=['point','batch','sample','batch_decision','batch_investigation','vehicle','route','load','station','weigh','handoff','performance','decision_log']
+TABLES=['point','batch','sample','license','batch_decision','batch_investigation','vehicle','route','load','station','weigh','handoff','performance','decision_log']
 def report(db):
     r={table:[dict(x) for x in many(db,f'SELECT * FROM {table} ORDER BY rowid')] for table in TABLES}
     r['event']=[dict(x) for x in many(db,'SELECT id,kind,sha FROM event ORDER BY rowid')]
@@ -17,7 +18,15 @@ def audit(db,handlers):
             return {'replay_ok':False,'mismatches':['source_file_sha']}
         data=json.loads(src['raw'])
         with replay:
-            for e in data['events']:
+            if scoped_source.is_package_document(data):
+                if src['command']!=scoped_source.SCOPED_COMMAND:
+                    raise ValueError('recorded command/kind mismatch')
+                # Re-verify the package from its stored bytes alone; no receiver
+                # ledger state is needed to reproduce the canonical events.
+                events=scoped_source.replay_events(data)
+            else:
+                events=data['events']
+            for e in events:
                 if e['kind'] not in handlers[src['command']]:raise ValueError('recorded command/kind mismatch')
                 if ingest(replay,e):handlers[src['command']][e['kind']](replay,e)
             replay.execute('INSERT INTO source_file(command,sha,raw) VALUES(?,?,?)',(src['command'],src['sha'],src['raw']))
