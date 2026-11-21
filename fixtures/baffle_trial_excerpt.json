@@ -1,0 +1,13 @@
+{
+  "change":"partition-baffle",
+  "site":"PT1",
+  "mixed_rates":{"old":8,"new":5},
+  "possible_actual_effects":[
+    {"difference_due_to_new_baffle":3,"difference_due_to_feed":0},
+    {"difference_due_to_new_baffle":0,"difference_due_to_feed":3}
+  ],
+  "permitted_captures":[
+    {"mode":"split_source","physical_reference":"archived synthetic feed"},
+    {"mode":"crossover","physical_reference":"alternating synthetic feed hall"}
+  ]
+}
