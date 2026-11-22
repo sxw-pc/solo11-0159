@@ -17,6 +17,21 @@ CREATE TABLE IF NOT EXISTS weigh(id TEXT PRIMARY KEY,station_id TEXT NOT NULL,ro
 CREATE TABLE IF NOT EXISTS handoff(id INTEGER PRIMARY KEY,weigh_id TEXT NOT NULL,load_id TEXT NOT NULL,net_kg REAL NOT NULL,delta_kg REAL NOT NULL,state TEXT NOT NULL,reason TEXT NOT NULL);
 CREATE TABLE IF NOT EXISTS performance(id INTEGER PRIMARY KEY,batch_id TEXT NOT NULL,credited_kg REAL NOT NULL,state TEXT NOT NULL,reason TEXT NOT NULL);
 CREATE TABLE IF NOT EXISTS decision_log(id INTEGER PRIMARY KEY,system TEXT NOT NULL,object_id TEXT NOT NULL,state TEXT NOT NULL,reason TEXT NOT NULL,event_id TEXT,at TEXT DEFAULT CURRENT_TIMESTAMP);
+
+-- Offline unloading evidence.  Raw rows are append-only: a re-scan or a
+-- witness supplement is another row, never an edit of an earlier reading.
+CREATE TABLE IF NOT EXISTS contract(id TEXT PRIMARY KEY,contract_no TEXT NOT NULL,import_no TEXT,plan TEXT NOT NULL,station_id TEXT,route_id TEXT NOT NULL,seal TEXT NOT NULL,carrier TEXT,importer TEXT,signed_at TEXT NOT NULL,selected INTEGER NOT NULL DEFAULT 0,state TEXT NOT NULL,reason TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS contract_selection(id TEXT PRIMARY KEY,contract_no TEXT NOT NULL,route_id TEXT,seal TEXT,at TEXT NOT NULL,witness TEXT,state TEXT NOT NULL,reason TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS calibration(id TEXT PRIMARY KEY,station_id TEXT NOT NULL,shift TEXT NOT NULL,zero_min REAL NOT NULL,zero_max REAL NOT NULL,ticket TEXT,at TEXT NOT NULL,witness TEXT,supersedes TEXT,state TEXT NOT NULL,reason TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS seal_manifest(id TEXT PRIMARY KEY,route_id TEXT NOT NULL,seal TEXT NOT NULL,batch_ids TEXT NOT NULL,at TEXT NOT NULL,capture_sha TEXT,state TEXT NOT NULL,reason TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS unload_session(id TEXT PRIMARY KEY,station_id TEXT NOT NULL,route_id TEXT NOT NULL,seal TEXT NOT NULL,shift TEXT NOT NULL,at TEXT NOT NULL,witness TEXT NOT NULL,contract_no TEXT,expected_containers INTEGER,closed INTEGER NOT NULL DEFAULT 1,capture_sha TEXT NOT NULL,state TEXT NOT NULL,reason TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS unload_container(id TEXT PRIMARY KEY,session_id TEXT NOT NULL,sequence INTEGER NOT NULL,container_code TEXT NOT NULL,seal_in TEXT,seal_out TEXT,before_kg REAL,after_kg REAL,raw_kg REAL NOT NULL,capture_sha TEXT NOT NULL,state TEXT NOT NULL,reason TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS container_scan(id TEXT PRIMARY KEY,container_id TEXT NOT NULL,batch_id TEXT,at TEXT NOT NULL,witness TEXT,capture_sha TEXT,supersedes TEXT,kind TEXT NOT NULL,state TEXT NOT NULL,reason TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS unload_adjudication(id INTEGER PRIMARY KEY,route_id TEXT NOT NULL,seal TEXT NOT NULL,weigh_id TEXT,station_id TEXT NOT NULL,shift TEXT NOT NULL,rule_version TEXT NOT NULL,state TEXT NOT NULL,reason TEXT NOT NULL,z REAL,zero_min REAL,zero_max REAL,raw_sum REAL,net_kg REAL,expected_containers INTEGER,observed_containers INTEGER,evidence TEXT NOT NULL,candidate_map TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS container_candidate(id INTEGER PRIMARY KEY,adjudication_id INTEGER NOT NULL,container_id TEXT NOT NULL,sequence INTEGER NOT NULL,batch_id TEXT,feasible INTEGER NOT NULL,reason TEXT NOT NULL,raw_ticket TEXT);
+CREATE TABLE IF NOT EXISTS batch_net_bound(id INTEGER PRIMARY KEY,adjudication_id INTEGER NOT NULL,batch_id TEXT NOT NULL,load_id TEXT,lower_kg REAL,upper_kg REAL,proved_kg REAL,eligible INTEGER NOT NULL,state TEXT NOT NULL,reason TEXT NOT NULL,evidence TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS certificate(id INTEGER PRIMARY KEY,adjudication_id INTEGER NOT NULL,contract_no TEXT,plan TEXT NOT NULL,route_id TEXT NOT NULL,seal TEXT NOT NULL,weigh_id TEXT,batch_id TEXT,kg REAL,lower_kg REAL,upper_kg REAL,state TEXT NOT NULL,reason TEXT NOT NULL,rule_version TEXT NOT NULL,raw_tickets TEXT NOT NULL,candidate_map TEXT NOT NULL,bounds TEXT NOT NULL,selected INTEGER NOT NULL DEFAULT 0,active INTEGER NOT NULL DEFAULT 1);
+CREATE TABLE IF NOT EXISTS performance_evidence(id INTEGER PRIMARY KEY,batch_id TEXT NOT NULL,performance_id INTEGER,basis TEXT NOT NULL,certificate_id INTEGER,rule_version TEXT,evidence TEXT NOT NULL,reason TEXT NOT NULL);
 """
 
 def connect(path):
