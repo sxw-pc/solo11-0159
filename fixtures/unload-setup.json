@@ -1,0 +1,5 @@
+{"events":[
+{"id":"CT-A","kind":"contract","contract_no":"CA-1","form":"whole_vehicle","party":"carrier-a","signed_at":"2026-03-30T09:00:00"},
+{"id":"CT-B","kind":"contract","contract_no":"CB-1","form":"per_source","party":"collection-points","signed_at":"2026-03-30T09:05:00"},
+{"id":"CAL-1","kind":"shift_calibration","station_id":"ST1","shift":"shift-1","zero_min":0,"zero_max":2,"operator":"metrology-a","witness":"metrology-b","at":"2026-04-01T10:30:00","raw_digest":"3a7bd3c6e90f4a1b8c2d5e6f708192a3b4c5d6e7f8091a2b3c4d5e6f708192a3"}
+]}

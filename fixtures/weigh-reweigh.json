@@ -1,0 +1,3 @@
+{"events":[
+{"id":"W2","kind":"weigh","station_id":"ST1","route_id":"R1","seal":"seal-x","at":"2026-04-01T13:00:00","gross":195,"tare":100,"operator":"scale-b","reweigh_of":"W1","witness":"scale-supervisor","contract_no":"CA-1"}
+]}

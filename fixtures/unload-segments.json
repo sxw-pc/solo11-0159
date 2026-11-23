@@ -1,0 +1,6 @@
+{"events":[
+{"id":"U1","kind":"unload_segment","station_id":"ST1","route_id":"R1","seal":"seal-x","shift":"shift-1","seq":1,"container_code":"C-01","batch_hint":"B1","pre_kg":156,"post_kg":100,"operator":"unload-a","witness":"unload-w1","at":"2026-04-01T11:05:00","raw_digest":"9f1c2e4a6b8d0f2a4c6e8a0c2e4a6c8e0a2c4e6a8c0e2a4c6e8a0c2e4a6c8e0a"},
+{"id":"U2","kind":"unload_segment","station_id":"ST1","route_id":"R1","seal":"seal-x","shift":"shift-1","seq":2,"container_code":"C-02","batch_hint":"B2","pre_kg":100,"post_kg":69,"operator":"unload-a","witness":"unload-w1","at":"2026-04-01T11:08:00","raw_digest":"1b2c3d4e5f60718293a4b5c6d7e8f9011223344556677889900aabbccddeeff0"},
+{"id":"U3","kind":"unload_segment","station_id":"ST1","route_id":"R1","seal":"seal-x","shift":"shift-1","seq":3,"container_code":null,"batch_hint":null,"pre_kg":69,"post_kg":63,"operator":"unload-a","witness":"unload-w1","at":"2026-04-01T11:11:00","raw_digest":"77aa11bb22cc33dd44ee55ff660011223344556677889900aabbccddeeff0011"},
+{"id":"UC1","kind":"unload_close","route_id":"R1","seal":"seal-x","shift":"shift-1","container_count":3,"operator":"unload-a","witness":"unload-w2","at":"2026-04-01T11:15:00","raw_digest":"00ff11ee22dd33cc44bb55aa660077881199226633444885527766355aa44119"}
+]}

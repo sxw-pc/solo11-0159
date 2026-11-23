@@ -1,0 +1,3 @@
+{"events":[
+{"id":"RS-1","kind":"container_rescan","segment_id":"U3","container_code":"C-03","batch_id":"B1","operator":"rescan-a","witness":"rescan-w","at":"2026-04-01T12:30:00","raw_digest":"abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789"}
+]}

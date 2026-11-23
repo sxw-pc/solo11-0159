@@ -1,0 +1,8 @@
+{"events":[
+{"id":"PT1","kind":"point","zone":"district-a","category":"recyclable","inspector_org":"classify-team"},
+{"id":"PT2","kind":"point","zone":"district-a","category":"recyclable","inspector_org":"classify-team"},
+{"id":"B1","kind":"batch","point_id":"PT1","category":"recyclable","bag_count":6,"declared_kg":60,"at":"2026-04-01T08:00:00"},
+{"id":"B2","kind":"batch","point_id":"PT2","category":"recyclable","bag_count":4,"declared_kg":40,"at":"2026-04-01T08:05:00"},
+{"id":"S-B1","kind":"sample","batch_id":"B1","inspector":"classify-team","at":"2026-04-01T08:10:00","contamination":4,"bag_refs":["b1-bag-1","b1-bag-2"]},
+{"id":"S-B2","kind":"sample","batch_id":"B2","inspector":"classify-team","at":"2026-04-01T08:15:00","contamination":3,"bag_refs":["b2-bag-1"]}
+]}

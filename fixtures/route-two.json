@@ -1,0 +1,6 @@
+{"events":[
+{"id":"V1","kind":"vehicle","category":"recyclable","capacity_kg":200,"zone":"district-a"},
+{"id":"R1","kind":"route","vehicle_id":"V1","starts":"2026-04-01T08:30:00","ends":"2026-04-01T12:00:00","zone":"district-a","dispatcher":"dispatch-a"},
+{"id":"L1","kind":"load","batch_id":"B1","route_id":"R1","loaded_at":"2026-04-01T09:00:00","kg":60,"seal":"seal-x","driver":"driver-a","point_witness":"point-a"},
+{"id":"L2","kind":"load","batch_id":"B2","route_id":"R1","loaded_at":"2026-04-01T09:20:00","kg":40,"seal":"seal-x","driver":"driver-a","point_witness":"point-b"}
+]}

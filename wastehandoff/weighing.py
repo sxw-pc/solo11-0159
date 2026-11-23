@@ -37,8 +37,8 @@ def weigh(db,e):
         db.execute("UPDATE handoff SET state='superseded',reason='reweigh replaced old ticket' WHERE weigh_id=?",(superseded['id'],))
     elif superseded:
         superseded=None
-    db.execute('INSERT INTO weigh(id,station_id,route_id,seal,at,gross,tare,operator,reweigh_of,state,reason) VALUES(?,?,?,?,?,?,?,?,?,?,?)',
-               (e['id'],e['station_id'],e['route_id'],e['seal'],e['at'],float(e['gross']),float(e['tare']),e.get('operator',''),e.get('reweigh_of'),state,reason))
+    db.execute('INSERT INTO weigh(id,station_id,route_id,seal,at,gross,tare,operator,reweigh_of,contract_no,state,reason) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)',
+               (e['id'],e['station_id'],e['route_id'],e['seal'],e['at'],float(e['gross']),float(e['tare']),e.get('operator',''),e.get('reweigh_of'),e.get('contract_no'),state,reason))
     if state in {'accepted','disputed'}:
         for load in loads:
             db.execute('INSERT INTO handoff(weigh_id,load_id,net_kg,delta_kg,state,reason) VALUES(?,?,?,?,?,?)',
@@ -50,15 +50,30 @@ def weigh(db,e):
         for load in many(db,'SELECT DISTINCT l.batch_id FROM load l JOIN handoff h ON h.load_id=l.id WHERE h.weigh_id=?',(superseded['id'],)):
             reconcile_performance(db,load['batch_id'])
     log(db,'weighing',e['id'],state,reason,e['id'])
+    from .unloading import readjudicate_seal
+    readjudicate_seal(db,route['id'],e['seal'],e['id'])
     return state
 
 def reconcile_performance(db,batch_id):
     b=one(db,'SELECT * FROM batch WHERE id=?',(batch_id,))
     if not b:return
-    handoffs=many(db,"SELECT h.net_kg FROM handoff h JOIN load l ON l.id=h.load_id WHERE l.batch_id=? AND l.state='loaded' AND h.state='accepted'",(batch_id,))
-    credited=sum(h['net_kg'] for h in handoffs) if b['state']=='qualified' else 0
-    state='credited' if credited>0 else 'excluded'
-    reason='qualified class and accepted terminal net' if credited>0 else 'no jointly qualified source and handoff'
+    from .unloading import adjudicated_credit
+    adj=adjudicated_credit(db,batch_id)
+    if adj is None:
+        handoffs=many(db,"SELECT h.net_kg FROM handoff h JOIN load l ON l.id=h.load_id WHERE l.batch_id=? AND l.state='loaded' AND h.state='accepted'",(batch_id,))
+        credited=sum(h['net_kg'] for h in handoffs) if b['state']=='qualified' else 0
+        state='credited' if credited>0 else 'excluded'
+        reason='qualified class and accepted terminal net' if credited>0 else 'no jointly qualified source and handoff'
+    elif b['state']!='qualified':
+        credited,state,reason=0,'excluded','source classification not qualified'
+    else:
+        certain,pending=adj
+        credited=certain
+        if pending:
+            state,reason='pending_verification','unload attribution unresolved or vehicle under investigation; proportional split is not evidence'
+        else:
+            state='credited' if credited>0 else 'excluded'
+            reason='unload adjudication proves source net' if credited>0 else 'no proven source net'
     old=one(db,'SELECT * FROM performance WHERE batch_id=? ORDER BY id DESC LIMIT 1',(batch_id,))
     if not old or (old['credited_kg'],old['state'])!=(credited,state):
         db.execute('INSERT INTO performance(batch_id,credited_kg,state,reason) VALUES(?,?,?,?)',

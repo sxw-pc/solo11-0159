@@ -46,6 +46,8 @@ def cancel_load(db,e):
     log(db,'routing',e['load_id'],'cancelled','compartment capacity released',e['id'])
     from .weighing import reconcile_performance
     reconcile_performance(db,load['batch_id'])
+    from .unloading import readjudicate_seal
+    readjudicate_seal(db,load['route_id'],load['seal'],e['id'])
     return 'cancelled'
 
 def reconcile_loads(db,batch_id):

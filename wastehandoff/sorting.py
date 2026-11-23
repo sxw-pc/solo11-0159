@@ -58,6 +58,8 @@ def recompute(db,batch_id,event_id=None):
         reconcile_loads(db,batch_id)
         from .weighing import reconcile_performance
         reconcile_performance(db,batch_id)
+        from .unloading import readjudicate_for_batch
+        readjudicate_for_batch(db,batch_id,event_id)
     return state
 
 def record_terminal_difference(db,batch_id,weigh_id,state):
