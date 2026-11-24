@@ -3,7 +3,7 @@ import json
 from .store import connect,many
 from .source import ingest
 
-TABLES=['point','batch','sample','batch_decision','batch_investigation','vehicle','route','load','station','weigh','handoff','performance','decision_log']
+TABLES=['point','batch','sample','batch_decision','batch_investigation','vehicle','route','load','station','weigh','handoff','performance','baffle_trial','baffle_shift','baffle_feed','baffle_point','baffle_fixture','baffle_switch','baffle_origin_link','baffle_reading','baffle_attestation','decision_log']
 def report(db):
     r={table:[dict(x) for x in many(db,f'SELECT * FROM {table} ORDER BY rowid')] for table in TABLES}
     r['event']=[dict(x) for x in many(db,'SELECT id,kind,sha FROM event ORDER BY rowid')]
